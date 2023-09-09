@@ -1,0 +1,126 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<style>
+    .nest-container{
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+    }
+    .nest-navbar{
+        
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding: 3px;
+    }
+</style>
+<div class="nest-container">
+    <div>
+        <hr>
+        <div style="display: grid;
+        grid-template-columns: 2fr 1fr;">
+        <h1>{{nest.name}}</h1>
+        <h4>by {{nest.host.username}} </h4>
+        {% if nest.host.username|striptags != request.user.username|striptags %}
+        <!-- <div>
+        <button style=" display: flex;justify-content:flex-end;">
+            <a href="{% url 'flash-message' %}">Join Nest</a>
+        </button>
+        </div> -->
+
+        {% if request.user.is_authenticated %}
+        <div style=" display: flex;justify-content:flex-end;">
+            <form action="{% url 'nest' pk=nest.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" name="join_request" value="Join Nest">
+            </form>
+        </div>
+        {% endif %}
+
+
+        {% else %}
+        <div class="nest-navbar">
+        <button  style=" display: flex;justify-content:flex-end;">
+            <a href="{% url 'all-requests' nest.id %}">All Requests</a>
+        </button>
+        <button  style=" display: flex;justify-content:flex-end;">
+            <a href="{% url 'all-requests' nest.id %}">Members</a>
+        </button>
+        </div>
+        {% endif %}
+        </div>
+
+        <h5 style="border: 2px solid black; width: auto; padding: 10px; margin: 2px;">{{nest.description}}</h5>
+
+        <div style="border: 2px solid black; width: auto; padding: 10px; margin: 2px;" class="comment-wrapper">
+            <h3> Conversation </h3>
+            <hr>
+            <!-- <h1> {{nest_messages}} </h1> -->
+            {% for message in nest_messages %}
+            <div>
+                <hr>
+                {% if request.user == message.user %}
+                <a href="{% url 'delete-message' message.id %}">Delete</a>
+                {% endif %}
+                    <small>@{{message.user}} {{message.created|timesince}} ago
+                </small>
+                <p>
+                    {{message.body}}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if request.user.is_authenticated %}
+        <div class="comment-form">
+            <form action="" method="post">
+                {% csrf_token %}
+                <input type="text" name="body" placeholder="Write you message here !">
+            </form>
+        </div>
+        {% endif %}
+       
+    </div>
+
+    <div>
+        <select id="viewSelector">
+            <option value="members">Members</option>
+            <option value="activities">User Activities</option>
+        </select>
+    
+    <div id="membersView">
+        <h3>Members</h3>
+        <hr>
+        {% for user in participants %}
+        <div style="border: 2px solid black; width: auto; padding: 1px; margin: 2px;" class="comment-wrapper">
+            {% if nest.host.username|striptags == user.username|striptags %}
+            <p> Guardian : [^~{{user.username}}~^] </p>
+
+            {% else %}
+
+            <p>@{{user.username}}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <div id="activitiesView" style="display: none;">
+        {% include 'LearnNest/activity_component.html' %}
+    </div>
+</div>
+    <script>
+        const viewSelector = document.getElementById('viewSelector');
+        const membersView = document.getElementById('membersView');
+        const activitiesView = document.getElementById('activitiesView');
+
+        viewSelector.addEventListener('change', function() {
+            if (viewSelector.value === 'members') {
+                membersView.style.display = 'block';
+                activitiesView.style.display = 'none';
+            } else if (viewSelector.value === 'activities') {
+                membersView.style.display = 'none';
+                activitiesView.style.display = 'block';
+            }
+        });
+    </script>
+</div>
+{% endblock content %}

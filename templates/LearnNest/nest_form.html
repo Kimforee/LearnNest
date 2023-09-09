@@ -1,0 +1,34 @@
+{% extends 'main.html ' %}
+
+{% block content %}
+
+<div>
+    <form method="post" action="">
+        {% csrf_token %}
+        {{form.as_p}}
+        <!-- "<label for="{{ form.topic.id_for_label }}">Host:</label>
+        {{ form.user }}
+        <br>
+
+        <label for="{{ form.topic.id_for_label }}">Topic:</label>
+        {{ form.topic }}
+        <br>
+        
+        <label for="{{ form.name.id_for_label }}">Name:</label>
+        {{ form.name }}
+        <br>
+        
+        <label for="{{ form.participants.id_for_label }}">Participants:</label>
+        {{ form.participants }}
+        <br>
+        
+        <label for="{{ form.description.id_for_label }}">Description:</label>
+        {{ form.description }}
+        <br>" -->
+
+        <input type="submit" value="Submit">
+
+    </form>
+</div>
+
+{% endblock content %}

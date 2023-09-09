@@ -1,0 +1,77 @@
+{{ request.user }}
+<br>
+{{ nest.host.username}}
+{% if nest.host.username == nest.user.username %}
+
+                {% endif %}
+
+                <!-- {% endif %} -->
+
+                <!-- {% if nest.host.username|striptags == request.user.username|striptags %} -->
+
+                @login_required(login_url='login')
+                def nest(request, pk):
+                    nest = Nest.objects.get(id=pk)
+                    nest_messages = nest.message_set.all().order_by('-created')
+                    participants  = nest.participants.all()
+                    join_request  = None
+                    member = False
+                
+                    try:
+                        join_request = JoinRequest.objects.get(user=request.user, nest=nest)
+                    except JoinRequest.DoesNotExist:
+                        pass
+                
+                    if join_request and join_request.is_accepted:
+                        nest.participants.add(request.user)
+                        is_member = True
+                
+                    # if request.method == 'POST':
+                    #     message = Message.objects.create(
+                    #         user = request.user,
+                    #         nest = nest,
+                    #         body = request.POST.get('body'),
+                    #     )
+                    #     nest.participants.add(request.user)
+                    #     return redirect('nest', pk=nest.id)
+                
+                    if request.method == 'POST':
+                        if 'body' in request.POST:
+                            # Handle sending a message
+                            message = Message.objects.create(
+                                user=request.user,
+                                nest=nest,
+                                body=request.POST.get('body'),
+                            )
+                            nest.participants.add(request.user)
+                            return redirect('nest', pk=nest.id)
+                        elif 'join_request' in request.POST:
+                            # Handle sending a join request
+                            if not join_request:
+                                JoinRequest.objects.create(user=request.user, nest=nest)
+                
+                    
+                    context = {'nest': nest, 'nest_messages': nest_messages,'participants': participants}
+                    return render(request, 'LearnNest/nest.html',context)
+
+                    def home(request): 
+    q = request.GET.get('q') if request.GET.get('q') != None else ''
+    nests = Nest.objects.filter(
+        Q(topic__name__icontains=q) |
+        Q(name__icontains=q) |
+        Q(host__username__icontains=q)
+        )
+
+        # nests = Nest.objects.filter(
+        # Q(topic__name__icontains=q) |
+        # Q(name__icontains=q) |
+        # Q(description__icontains=q) |
+        # Q(host__username__icontains=q)
+        # )
+
+    topics = Topic.objects.all()
+    nest_count = nests.count()
+    nest_messages = Message.objects.filter(Q(nest__topic__name__icontains=q))
+
+    context =  {'nests': nests, 'topics': topics, 'nest_count': nest_count, 'nest_messages': nest_messages}
+    return render(request, 'LearnNest/home.html', context)

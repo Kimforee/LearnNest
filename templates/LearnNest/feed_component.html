@@ -1,0 +1,28 @@
+<div>
+    {% for nest in nests %}
+        
+            <div style="border: 2px solid black; width: auto; padding: 10px;">
+                <tr>
+                    {% if nest.host.username|striptags == request.user.username|striptags %}
+                    #-
+                    <a href="{% url 'update-nest' nest.id %}">Edit your test</a>
+                    #-
+                    <a href="{% url 'delete-nest' nest.id %}">Delete your test</a>
+                    {% endif %}
+                </tr>
+                <a href="{% url 'user-profile' nest.host.id %}" style="display: flex; justify-content: flex-end;">
+                    by : {{nest.host.username}}
+                </a>
+                <button  style=" display: flex;justify-content:flex-end;">
+                    Join Nest
+                </button>
+                <h5> {{nest.id}} -- <a href="{% url 'nest' nest.id %}">{{nest.name}}</a></h5>
+                <small> 
+                    {{nest.topic.name}} . {{nest}}
+                    
+                </small>
+            </div>
+            <br>
+    {% endfor %}
+    
+</div>

@@ -1,0 +1,34 @@
+{% extends 'LearnNest/nest.html' %}
+
+{% block content %}
+
+<title>All Join Requests</title>
+
+<h1>All Join Requests for {{nest.name}}</h1>
+
+<ul>
+    {% for request in join_requests %}
+        <li>
+            {{ request.user.username }} wants to join.
+            {% if not request.is_accepted %}
+                <form method="POST" action="{% url 'accept-join-request' request.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Accept</button>
+                </form>
+                <form method="POST" action="{% url 'reject-join-request' request.id %}">
+                    {% csrf_token %}
+                    <button type="submit">Reject</button>
+                </form>
+            {% else %}
+                (Accepted)
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<!-- {% if nest.id %} -->
+    <a href="{% url 'nest' nest.id %}">Back to Nest</a>
+<!-- {% endif %} -->
+
+
+{% endblock content %}
